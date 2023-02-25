@@ -21,6 +21,24 @@ def menu(request):
     main_data = {"menu": menu_data}
     return render(request, 'menu.html', {"menu": main_data})
 
+@api_view()
+@permission_classes([IsAuthenticated])
+# @authentication_classes([TokenAuthentication])
+def msg(request):
+    return Response({"message":"This view is protected"})
+
+
+class MenuItemsView(generics.ListCreateAPIView):
+  permission_classes = [IsAuthenticated]
+  queryset = MenuItem.objects.all()
+  serializer_class = MenuItemSerializer
+
+@api_view()
+def single_item():
+   item=get_object_or_404(MenuItem,pk=id)
+   serialized_item=MenuItemSerializer(item)
+   return Response(serialized_item.data)		
+
 
 @api_view()
 @permission_classes([IsAuthenticated])
@@ -40,6 +58,19 @@ def manager_view(request):
 @throttle_classes([TenCallsPerMinute])
 def throttle_check_auth(request):
     return HttpResponse({"message":"successful"})
+
+@api_view()
+@permission_classes([IsAuthenticated])
+def me(request):
+	return Response(request.user.email)	
+
+@api_view()
+@permission_classes([IsAuthenticated])
+def manager_view(request):
+	return Response({'message':'Only Manager should see this'})	
+
+
+
 
 
 @api_view(['POST'])
